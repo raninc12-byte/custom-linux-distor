@@ -1,0 +1,61 @@
+#!/usr/bin/env bash
+# aibase-gpu-detect: runs once on first boot of the installed system.
+# Ships both mesa (iGPU) and nvidia-open drivers in the image; this picks
+# the correct one for the actual hardware, since that's unknown at ISO
+# build time. Disables its own service after a successful run.
+set -euo pipefail
+
+STATE_FLAG="/var/lib/aibase/gpu-detect.done"
+MODPROBE_BLACKLIST="/etc/modprobe.d/aibase-nouveau-blacklist.conf"
+
+mkdir -p /var/lib/aibase
+
+if [[ -f "$STATE_FLAG" ]]; then
+    exit 0
+fi
+
+has_nvidia_gpu() {
+    lspci -nn | grep -Eiq 'VGA|3D controller' && lspci -nn | grep -Eiq 'nvidia'
+}
+
+# nvidia-open only supports Turing (RTX 20xx/GTX 16xx) and newer. Older cards
+# (Pascal/Maxwell/Kepler and earlier) need the proprietary driver instead.
+# Falls back automatically so the user never has to pick a driver manually.
+fallback_to_proprietary_nvidia() {
+    echo "aibase-gpu-detect: nvidia-open failed to initialize this GPU, falling back to proprietary nvidia driver"
+    if pacman -S --noconfirm --needed nvidia nvidia-utils nvidia-settings; then
+        pacman -Rns --noconfirm nvidia-open 2>/dev/null || true
+    else
+        echo "aibase-gpu-detect: could not download the proprietary driver (offline?)." \
+             "Keeping nvidia-open; re-run this check later with 'systemctl start aibase-gpu-detect'."
+    fi
+}
+
+if has_nvidia_gpu; then
+    echo "aibase-gpu-detect: NVIDIA GPU detected, enabling nvidia-open driver"
+    echo "blacklist nouveau" > "$MODPROBE_BLACKLIST"
+    # Ensure nvidia modules are available early (KMS) and nouveau is not.
+    sed -i \
+        -e 's/^MODULES=(.*)/MODULES=(nvidia nvidia_modeset nvidia_uvm nvidia_drm)/' \
+        /etc/mkinitcpio.conf
+    mkinitcpio -P
+
+    if ! modprobe nvidia 2>/dev/null || ! nvidia-smi >/dev/null 2>&1; then
+        fallback_to_proprietary_nvidia
+        mkinitcpio -P
+        modprobe nvidia 2>/dev/null || true
+    fi
+
+    systemctl enable --now nvidia-persistenced.service 2>/dev/null || true
+else
+    echo "aibase-gpu-detect: no NVIDIA GPU found, keeping mesa/iGPU driver"
+    rm -f "$MODPROBE_BLACKLIST"
+    sed -i 's/^MODULES=(nvidia nvidia_modeset nvidia_uvm nvidia_drm)/MODULES=()/' \
+        /etc/mkinitcpio.conf
+    # Free disk space - proprietary/open nvidia driver isn't needed here.
+    pacman -Rns --noconfirm nvidia-open nvidia-utils nvidia-settings lib32-nvidia-utils 2>/dev/null || true
+    mkinitcpio -P
+fi
+
+touch "$STATE_FLAG"
+systemctl disable aibase-gpu-detect.service

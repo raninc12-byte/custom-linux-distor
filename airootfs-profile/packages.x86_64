@@ -1,0 +1,69 @@
+# Base (from archiso releng profile)
+base
+linux
+linux-firmware
+mkinitcpio-archiso
+archinstall
+btrfs-progs
+dosfstools
+e2fsprogs
+exfatprogs
+f2fs-tools
+mtools
+ntfs-3g
+xfsprogs
+nano
+vim
+sudo
+networkmanager
+network-manager-applet
+openssh
+reflector
+rsync
+efibootmgr
+grub
+
+# XFCE desktop
+xfce4
+xfce4-goodies
+lightdm
+lightdm-gtk-greeter
+xorg-server
+xorg-xinit
+pipewire
+pipewire-pulse
+pipewire-alsa
+pipewire-jack
+wireplumber
+firefox
+file-roller
+gvfs
+gvfs-mtp
+plymouth
+
+# GPU drivers - both stacks shipped, first-boot script picks the right one.
+# nvidia-open only supports Turing+ cards; aibase-gpu-detect falls back to
+# downloading the proprietary 'nvidia' package at runtime for older GPUs
+# (not bundled here to keep the ISO smaller - requires internet on first boot).
+mesa
+xf86-video-amdgpu
+xf86-video-ati
+xf86-video-intel
+vulkan-intel
+vulkan-radeon
+nvidia-open
+nvidia-utils
+nvidia-settings
+lib32-nvidia-utils
+
+# Calamares installer
+calamares
+kpmcore
+parted
+
+# AI stack
+ollama
+
+# ai-assistant is installed from the project's custom local repo (see
+# scripts/build-local-repo.sh) - not in the official Arch repos.
+ai-assistant

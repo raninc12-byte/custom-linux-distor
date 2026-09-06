@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=AI Assistant
+Comment=Chat with the local AI assistant
+Exec=ai-assistant --chat
+Icon=aibase-assistant
+Categories=Utility;
+Terminal=false

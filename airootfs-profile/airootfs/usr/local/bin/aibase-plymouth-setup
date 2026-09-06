@@ -1,0 +1,25 @@
+#!/usr/bin/env bash
+# aibase-plymouth-setup: runs once on first boot of the installed system.
+# Calamares' own initcpiocfg module generates /etc/mkinitcpio.conf fresh at
+# install time and may not include the plymouth hook, so this adds it (if
+# missing) and activates our theme, then regenerates the initramfs.
+set -euo pipefail
+
+STATE_FLAG="/var/lib/aibase/plymouth-setup.done"
+mkdir -p /var/lib/aibase
+
+if [[ -f "$STATE_FLAG" ]]; then
+    exit 0
+fi
+
+if ! grep -qE '^HOOKS=\([^)]*\bplymouth\b' /etc/mkinitcpio.conf; then
+    sed -i -E 's/^(HOOKS=\([^)]*udev)([^)]*\))/\1 plymouth\2/' /etc/mkinitcpio.conf
+fi
+
+command -v plymouth-set-default-theme >/dev/null 2>&1 && \
+    plymouth-set-default-theme aibase || true
+
+mkinitcpio -P
+
+touch "$STATE_FLAG"
+systemctl disable aibase-plymouth-setup.service

@@ -1,0 +1,8 @@
+[Plymouth Theme]
+Name=AI-Base
+Description=AI-Base Linux boot splash
+ModuleName=script
+
+[script]
+ImageDir=/usr/share/plymouth/themes/aibase
+ScriptFile=/usr/share/plymouth/themes/aibase/aibase.script

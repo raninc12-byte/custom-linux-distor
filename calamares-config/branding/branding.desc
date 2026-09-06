@@ -1,0 +1,25 @@
+---
+componentName: aibase
+strings:
+    productName:         "AI-Base Linux"
+    shortProductName:    "AI-Base"
+    version:             "rolling"
+    shortVersion:        "2026.09"
+    versionedName:       "AI-Base Linux (rolling)"
+    shortVersionedName:  "AI-Base 2026.09"
+    bootloaderEntryName: "AI-Base Linux"
+    productUrl:          "https://example.invalid/"
+    supportUrl:          "https://example.invalid/support"
+    releaseNotesUrl:     "https://example.invalid/releases"
+
+images:
+    productLogo:         "logo.png"
+    productIcon:         "logo.png"
+    productWelcome:       "welcome.png"
+
+slideshow:                "show.qml"
+
+style:
+   sidebarBackground:     "#17151f"
+   sidebarText:           "#ffffff"
+   sidebarTextSelect:     "#3daee9"

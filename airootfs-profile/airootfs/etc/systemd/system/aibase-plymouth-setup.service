@@ -1,0 +1,12 @@
+[Unit]
+Description=AI-Base first-boot Plymouth boot theme setup
+Before=aibase-gpu-detect.service
+ConditionPathExists=!/var/lib/aibase/plymouth-setup.done
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/bin/aibase-plymouth-setup
+RemainAfterExit=yes
+
+[Install]
+WantedBy=multi-user.target

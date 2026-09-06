@@ -1,0 +1,52 @@
+name: Validate
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  python-syntax:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Compile all Python sources
+        run: python -m py_compile $(find ai-assistant -name '*.py')
+
+  python-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install test dependencies
+        run: pip install -e ./ai-assistant[test]
+      - name: Run unit tests (GTK-independent modules only)
+        run: pytest -q ai-assistant/tests
+
+  shellcheck:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Shellcheck all shell scripts
+        run: |
+          shopt -s globstar
+          shellcheck scripts/*.sh \
+            airootfs-profile/airootfs/usr/local/bin/aibase-gpu-detect \
+            airootfs-profile/airootfs/usr/local/bin/aibase-first-boot-setup \
+            airootfs-profile/airootfs/usr/local/bin/aibase-plymouth-setup
+
+  yaml-lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install yamllint
+        run: pip install yamllint
+      - name: Lint Calamares YAML configs
+        run: |
+          yamllint -d "{extends: default, rules: {line-length: disable, document-start: disable, truthy: disable}}" \
+            calamares-config/settings.conf \
+            calamares-config/modules/*.conf

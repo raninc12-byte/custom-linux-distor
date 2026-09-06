@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=AI Assistant
+Comment=Local AI assistant tray icon (chat + system helper)
+Exec=ai-assistant --tray
+Icon=aibase-assistant
+X-GNOME-Autostart-enabled=true
+NoDisplay=false

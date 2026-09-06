@@ -1,0 +1,40 @@
+#!/usr/bin/env bash
+# aibase-first-boot-setup: enables Ollama and pulls the default local model,
+# sized to the machine's RAM so an 8GB box doesn't try to load a 7B model.
+set -euo pipefail
+
+STATE_FLAG="/var/lib/aibase/first-boot-setup.done"
+mkdir -p /var/lib/aibase
+
+if [[ -f "$STATE_FLAG" ]]; then
+    exit 0
+fi
+
+systemctl enable --now ollama.service
+
+# Wait briefly for the Ollama API to come up. Each curl attempt may fail
+# while the service is still starting; with `set -e` a bare "cmd && break"
+# would abort the script on the first failure, so force success per-iteration.
+for _ in $(seq 1 30); do
+    if curl -fsS http://127.0.0.1:11434/api/tags >/dev/null 2>&1; then
+        break
+    fi
+    sleep 1
+done
+
+total_ram_gb=$(( $(awk '/MemTotal/{print $2}' /proc/meminfo) / 1024 / 1024 ))
+
+if (( total_ram_gb >= 15 )); then
+    default_model="llama3.1:8b-instruct-q4_K_M"
+else
+    # Fits comfortably in 8GB RAM systems, works fully offline out of the box.
+    default_model="llama3.2:3b-instruct-q4_K_M"
+fi
+
+echo "aibase-first-boot-setup: pulling default model $default_model (detected ${total_ram_gb}GB RAM)"
+ollama pull "$default_model" || echo "aibase-first-boot-setup: pull failed, assistant Model Manager can retry later"
+
+mkdir -p /etc/aibase
+echo "$default_model" > /etc/aibase/default-model
+touch "$STATE_FLAG"
+systemctl disable aibase-first-boot-setup.service

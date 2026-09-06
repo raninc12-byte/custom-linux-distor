@@ -1,0 +1,14 @@
+[Unit]
+Description=AI-Base first-boot Ollama + default model setup
+After=network-online.target aibase-gpu-detect.service
+Wants=network-online.target
+ConditionPathExists=!/var/lib/aibase/first-boot-setup.done
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/bin/aibase-first-boot-setup
+RemainAfterExit=yes
+TimeoutStartSec=600
+
+[Install]
+WantedBy=multi-user.target

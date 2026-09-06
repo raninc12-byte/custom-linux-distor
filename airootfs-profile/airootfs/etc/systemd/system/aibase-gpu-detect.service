@@ -1,0 +1,12 @@
+[Unit]
+Description=AI-Base first-boot GPU driver detection
+After=multi-user.target aibase-plymouth-setup.service
+ConditionPathExists=!/var/lib/aibase/gpu-detect.done
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/bin/aibase-gpu-detect
+RemainAfterExit=yes
+
+[Install]
+WantedBy=multi-user.target

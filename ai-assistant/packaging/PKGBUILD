@@ -1,0 +1,30 @@
+# Maintainer: AI-Base Linux project
+pkgname=ai-assistant
+pkgver=0.1.0
+pkgrel=1
+pkgdesc="Local AI assistant tray app for AI-Base Linux (talks to local Ollama)"
+arch=('any')
+url="https://example.invalid/"
+license=('MIT')
+depends=('python' 'python-requests' 'python-gobject' 'gtk3' 'libappindicator-gtk3' 'ollama' 'hicolor-icon-theme')
+makedepends=('python-setuptools' 'python-build' 'python-installer')
+source=()
+# The project source lives one directory up from this PKGBUILD; build from
+# the local checkout rather than fetching a tarball.
+_srcdir="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+
+build() {
+    cd "$_srcdir"
+    python -m build --wheel --no-isolation
+}
+
+package() {
+    cd "$_srcdir"
+    python -m installer --destdir="$pkgdir" dist/*.whl
+    install -Dm644 ai-assistant.desktop \
+        "$pkgdir/usr/share/applications/ai-assistant.desktop"
+    if [[ -f packaging/icons/aibase-assistant.png ]]; then
+        install -Dm644 packaging/icons/aibase-assistant.png \
+            "$pkgdir/usr/share/icons/hicolor/128x128/apps/aibase-assistant.png"
+    fi
+}
