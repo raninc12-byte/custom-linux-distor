@@ -25,6 +25,21 @@ The OS install itself is interactive (disk pick + LUKS passphrase) since
 Omarchy has no unattended install mode — the script prints the remaining
 manual steps once the VM console opens.
 
+**Windows Home has no Hyper-V** (`Enable-WindowsOptionalFeature` errors with
+"Feature name Microsoft-Hyper-V-All is unknown" — the feature isn't just
+disabled, it's absent). Use `scripts/windows/setup-omarchy-vm-virtualbox.ps1`
+instead — same idea, built on `VBoxManage` (no elevation needed, only
+requires VirtualBox to already be installed, e.g. `winget install
+Oracle.VirtualBox`):
+
+```powershell
+./scripts/windows/setup-omarchy-vm-virtualbox.ps1
+```
+
+VirtualBox's nested virtualization support is less reliable than Hyper-V's,
+so QEMU testing *inside* this VM may fall back to slow software emulation —
+still fine for a basic ISO-boot smoke test.
+
 ## Build steps
 
 ```bash
