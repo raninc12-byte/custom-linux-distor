@@ -9,6 +9,22 @@ sudo pacman -S --needed archiso calamares qemu-desktop edk2-ovmf base-devel imag
 Windows/macOS are not supported build hosts — use an Arch Linux VM or WSL2
 Arch distro.
 
+### Setting up a build VM on Windows (Hyper-V + Omarchy)
+
+If you don't have an Arch Linux machine yet, `scripts/windows/setup-omarchy-vm.ps1`
+automates creating a Hyper-V VM (Secure Boot off, nested virtualization on)
+and downloading the [Omarchy](https://omarchy.org/) ISO — Omarchy is Arch
+Linux underneath, so it works fine as a build host. Run it from an
+**elevated** PowerShell prompt:
+
+```powershell
+./scripts/windows/setup-omarchy-vm.ps1
+```
+
+The OS install itself is interactive (disk pick + LUKS passphrase) since
+Omarchy has no unattended install mode — the script prints the remaining
+manual steps once the VM console opens.
+
 ## Build steps
 
 ```bash
