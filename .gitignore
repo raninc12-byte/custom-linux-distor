@@ -5,6 +5,7 @@ __pycache__/
 ai-assistant/dist/
 ai-assistant/build/
 ai-assistant/*.egg-info/
+ai-assistant/src/*.egg-info/
 .pytest_cache/
 
 # ISO build output / archiso work dirs

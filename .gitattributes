@@ -1,0 +1,7 @@
+# Force LF line endings for anything that runs as a Linux shell script or
+# systemd unit, regardless of the committer's OS/autocrlf setting - CRLF in
+# a shebang script fails on Linux with "bad interpreter: /bin/bash^M".
+* text=auto eol=lf
+*.sh text eol=lf
+*.service text eol=lf
+airootfs-profile/airootfs/usr/local/bin/* text eol=lf
